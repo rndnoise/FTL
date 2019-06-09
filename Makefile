@@ -165,13 +165,17 @@ version.h: version~
 	@echo '#endif // VERSION_H' >> "$@"
 	@echo "Making FTL version on branch $(GIT_BRANCH) - $(GIT_VERSION) ($(GIT_DATE))"
 
-PREFIX=/usr
-SETCAP = $(shell which setcap)
+# Generate the macvendor database
+aux/macvendor.db:
+	python3 aux/macvendor.py
 
-# install target just installs the executable
-# other requirements (correct ownership of files, etc.) is managed by
+PREFIX=/usr
+
+# Install target just installs the executable and mac vendor DB.
+# Other requirements (correct ownership of files, etc.) is managed by
 # the service script on sudo service pihole-FTL (re)start
-install: pihole-FTL
-	mkdir -p $(DESTDIR)$(PREFIX)/bin
+install: pihole-FTL aux/macvendor.db
+	install -d -m 0755 $(DESTDIR)$(PREFIX)/bin
+	install -d -m 0755 $(DESTDIR)/etc/pihole
 	install -m 0755 pihole-FTL $(DESTDIR)$(PREFIX)/bin
-	$(SETCAP) CAP_NET_BIND_SERVICE,CAP_NET_RAW,CAP_NET_ADMIN+eip $(DESTDIR)$(PREFIX)/bin/pihole-FTL
+	install -m 0644 aux/macvendor.db $(DESTDIR)/etc/pihole
