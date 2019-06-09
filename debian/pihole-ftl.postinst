@@ -1,0 +1,17 @@
+#!/bin/sh
+
+if [ "$1" = "configure" ]; then
+    # Create a pihole user and group if they don't already exist
+    adduser --system --group --quiet pihole
+
+    # Give FTL permission to bind to low ports and have other advanced network
+    # capabilities
+    setcap CAP_NET_BIND_SERVICE,CAP_NET_RAW,CAP_NET_ADMIN+eip /usr/bin/pihole-FTL
+
+    # Set ownership of /etc/pihole
+    chown pihole:pihole -R /etc/pihole
+fi
+
+# This will be replaced with code from debhelper
+#DEBHELPER#
+# End code from debhelper

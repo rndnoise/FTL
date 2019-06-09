@@ -1,0 +1,9 @@
+Source: pihole-ftl
+Priority: optional
+Maintainer: The Pi-hole Team <adblock@pi-hole.net>
+Build-Depends: debhelper (>= 10), dh-systemd (>= 1.5)
+
+Package: pihole-ftl
+Architecture: any
+Depends: libcap2-bin, ${shlibs:Depends}, ${misc:Depends}
+Description: The Pi-hole FTL engine, which provides DNS services
