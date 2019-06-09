@@ -24,11 +24,13 @@ rm -rf $RPM_BUILD_ROOT
 # Create directories
 install -d -m 0755 %{buildroot}%{_bindir}
 install -d -m 0755 %{buildroot}%{_unitdir}
+install -d -m 0755 %{buildroot}%{_tmpfilesdir}
 install -d -m 0755 %{buildroot}/etc/pihole
 
 # Install files
 install -m 0755 pihole-FTL %{buildroot}%{_bindir}
-install -m 644 debian/pihole-FTL.service %{buildroot}%{_unitdir}
+install -m 0644 debian/pihole-FTL.service %{buildroot}%{_unitdir}
+install -m 0644 debian/%{name}.tmpfile %{_tmpfilesdir}/%{name}.conf
 install -m 0644 aux/macvendor.db %{buildroot}/etc/pihole
 
 
@@ -36,6 +38,7 @@ install -m 0644 aux/macvendor.db %{buildroot}/etc/pihole
 %license LICENSE
 %{_bindir}/pihole-FTL
 %{_unitdir}/pihole-FTL.service
+%{_tmpfilesdir}/%{name}.conf
 /etc/pihole/macvendor.db
 
 

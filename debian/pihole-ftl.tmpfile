@@ -1,0 +1,5 @@
+d /var/run/pihole           0755 pihole pihole - -
+f /var/log/pihole-FTL.log   0644 pihole pihole - -
+f /var/run/pihole-FTL.pid   0644 pihole pihole - -
+f /var/run/pihole-FTL.port  0644 pihole pihole - -
+f /var/log/pihole.log       0644 pihole pihole - -
