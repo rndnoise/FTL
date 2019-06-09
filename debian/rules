@@ -1,7 +1,7 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@
+	dh $@ --with systemd
 
 # Override these two rules to prevent unnecessary rebuilding
 override_dh_auto_clean:
