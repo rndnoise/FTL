@@ -29,5 +29,8 @@ RUN wget https://github.com/tcnksm/ghr/releases/download/v0.12.0/ghr_v0.12.0_lin
     tar -xzf ghr_*_linux_amd64.tar.gz && \
     mv ghr_*_linux_amd64/ghr /usr/bin/ghr
 
-# Allow libnettle to be used, because this GCC doesn't have all the right header and library directories
-ENV CC "arm-linux-gnueabihf-gcc -I/usr/include -I/usr/include/arm-linux-gnueabihf -L/usr/local/lib"
+# Allow libnettle to be used, because this GCC doesn't have all the right header
+# and library directories. The symlink is used so we don't use all of
+# /usr/include, as that clashes with the headers in GCC's own sysroot.
+RUN ln -s /usr/include/nettle /usr/include/arm-linux-gnueabihf/nettle
+ENV CC "arm-linux-gnueabihf-gcc -I/usr/include/arm-linux-gnueabihf -L/usr/local/lib"
