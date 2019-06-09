@@ -30,7 +30,7 @@ install -d -m 0755 %{buildroot}/etc/pihole
 # Install files
 install -m 0755 pihole-FTL %{buildroot}%{_bindir}
 install -m 0644 debian/pihole-FTL.service %{buildroot}%{_unitdir}
-install -m 0644 -T debian/%{name}.tmpfile %{_tmpfilesdir}/%{name}.conf
+install -m 0644 -T debian/%{name}.tmpfile %{buildroot}%{_tmpfilesdir}/%{name}.conf
 install -m 0644 aux/macvendor.db %{buildroot}/etc/pihole
 
 
