@@ -18,46 +18,50 @@ import sqlite3
 # Download raw data from Wireshark's website
 # We use the official URL recommended in the header of this file
 print("Downloading...")
-urllib.request.urlretrieve("https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=manuf", "manuf.data")
+urllib.request.urlretrieve(
+    "https://code.wireshark.org/review/gitweb?p=wireshark.git;a=blob_plain;f=manuf",
+    "manuf.data"
+)
 print("...done")
 
 # Read file into memory and process lines
-manuf = open("manuf.data", "r")
+manuf = open("manuf.data", "r", encoding="UTF-8")
 data = []
 print("Processing...")
 for line in manuf:
-	line = line.strip()
+    line = line.strip()
 
-	# Skip comments and empty lines
-	if line[1] == "#" or line == "":
-		continue
+    # Skip comments and empty lines
+    if len(line) == 0 or line.startswith("#"):
+        continue
 
-	# Remove quotation marks as these might interfere with later INSERT / UPDATE commands
-	line = re.sub("\'|\"","", line)
-	# \s = Unicode whitespace characters, including [ \t\n\r\f\v]
-	cols = re.split("\s\s+|\t", line)
-	# Use try/except chain to catch empty/incomplete lines without failing hard
-	try:
-		# Strip whitespace and quotation marks (some entries are incomplete and cause errors with the CSV parser otherwise)
-		mac = cols[0].strip().strip("\"")
-	except:
-		continue
-	try:
-		desc_short = cols[1].strip().strip("\"")
-	except:
-		desc_short = ""
-	try:
-		desc_long = cols[2].strip().strip("\"")
-	except:
-		desc_long = ""
+    # Remove quotation marks as these might interfere with later INSERT / UPDATE commands
+    line = re.sub("['\"]", "", line)
+    # \s = Unicode whitespace characters, including [ \t\n\r\f\v]
+    cols = re.split("\\s\\s+|\t", line)
+    # Use try/except chain to catch empty/incomplete lines without failing hard
+    try:
+        # Strip whitespace and quotation marks (some entries are incomplete and cause errors with the CSV parser
+        # otherwise)
+        mac = cols[0].strip().strip("\"")
+    except:
+        continue
+    try:
+        desc_short = cols[1].strip().strip("\"")
+    except:
+        desc_short = ""
+    try:
+        desc_long = cols[2].strip().strip("\"")
+    except:
+        desc_long = ""
 
-	# Only add long description where available
-	# There are a few vendors for which only the
-	# short description field is used
-	if(desc_long):
-		data.append([mac, desc_long])
-	else:
-		data.append([mac, desc_short])
+    # Only add long description where available
+    # There are a few vendors for which only the
+    # short description field is used
+    if desc_long:
+        data.append([mac, desc_long])
+    else:
+        data.append([mac, desc_short])
 print("...done")
 manuf.close()
 
@@ -66,9 +70,9 @@ database = "macvendor.db"
 
 # Try to delete old database file, pass if no old file exists
 try:
-	os.remove(database)
+    os.remove(database)
 except OSError:
-	pass
+    pass
 
 print("Generating database...")
 con = sqlite3.connect(database)
