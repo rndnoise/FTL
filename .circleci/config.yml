@@ -49,6 +49,7 @@ version: 2
           - Makefile
           - LICENSE
           - debian/pihole-FTL.service
+          - debian/pihole-ftl.tmpfile
           - rpm/pihole-ftl.spec
 
 .rpm_template: &rpm_template
