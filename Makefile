@@ -20,11 +20,25 @@ DNSMASQDEPS = config.h dhcp-protocol.h dns-protocol.h radv-protocol.h dhcp6-prot
 DNSMASQOBJ = arp.o dbus.o domain.o lease.o outpacket.o rrfilter.o auth.o dhcp6.o edns0.o log.o poll.o slaac.o blockdata.o dhcp.o forward.o loop.o radv.o tables.o bpf.o dhcp-common.o helper.o netlink.o rfc1035.o tftp.o cache.o dnsmasq.o inotify.o network.o rfc2131.o util.o conntrack.o dnssec.o ipset.o option.o rfc3315.o crypto.o dump.o ubus.o metrics.o
 
 # Get git commit version and date
+ifeq ($(CI),true)
+ifdef CIRCLE_TAG
+# This is a tag build
+GIT_BRANCH = master
+GIT_TAG = $(CIRCLE_TAG)
+else
+# This is a branch build
+GIT_BRANCH = $(CIRCLE_BRANCH)
+GIT_TAG = $(CIRCLE_TAG)
+endif
+else
+# Not a CI build, so grab from Git directly
 GIT_BRANCH := $(shell git branch | sed -n 's/^\* //p')
+GIT_TAG := $(shell git describe --tags --abbrev=0)
+endif
+
 GIT_HASH := $(shell git --no-pager describe --always --dirty)
 GIT_VERSION := $(shell git --no-pager describe --tags --always --dirty)
 GIT_DATE := $(shell git --no-pager show --date=short --format="%ai" --name-only | head -n 1)
-GIT_TAG := $(shell git describe --tags --abbrev=0)
 
 # Is compiler at least gcc version 8? We cannot do ifgt in Makefile, so we use the shell expr command
 GCCVERSION8 := $(shell expr `$(CC) -dumpversion | cut -f1 -d.` \>= 8)
