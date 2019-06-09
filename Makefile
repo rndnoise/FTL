@@ -149,7 +149,7 @@ pihole-FTL: $(_FTLOBJ) $(_DNSMASQOBJ) $(ODIR)/sqlite3.o
 .PHONY: clean force install
 
 clean:
-	rm -f $(ODIR)/*.o $(DNSMASQODIR)/*.o pihole-FTL
+	rm -f $(ODIR)/*.o $(DNSMASQODIR)/*.o pihole-FTL aux/macvendor.db
 
 # # recreate version.h when GIT_VERSION changes, uses temporary file version~
 version~: force
@@ -167,7 +167,7 @@ version.h: version~
 
 # Generate the macvendor database
 aux/macvendor.db:
-	python3 aux/macvendor.py
+	cd aux && python3 macvendor.py
 
 PREFIX=/usr
 

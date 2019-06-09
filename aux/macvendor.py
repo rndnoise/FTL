@@ -85,3 +85,8 @@ print("Optimizing database...")
 con.execute("VACUUM")
 print("...done")
 print("Lines inserted into database:", cur.rowcount)
+
+# Try to delete the manuf.data file
+print("Cleaning temporary files...")
+os.remove("manuf.data")
+print("...done.")
