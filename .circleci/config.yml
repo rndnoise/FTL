@@ -15,6 +15,13 @@ version: 2
           make
           file pihole-FTL
     - run:
+        name: "Build DEB"
+        command: |
+          export DEB_BUILD_OPTIONS=nostrip
+          dpkg-buildpackage -b -a $DEB_ARCH
+          mv ../pihole-ftl*.deb .
+          [[ "$CIRCLE_JOB" != "arm" ]] || for file in pihole-ftl*.deb; do mv $file ${file//armhf/arm}; done
+    - run:
         name: "Upload"
         command: |
           [ -z "$FTL_SECRET" ] && exit 0
@@ -25,6 +32,7 @@ version: 2
           chmod +x ./FTL-client
           [[ "$CIRCLE_PR_NUMBER" == "" ]] && ./FTL-client "${FOLDER}" "${BIN_NAME}" "${FTL_SECRET}"
           [[ "$CIRCLE_PR_NUMBER" == "" ]] && ./FTL-client "${FOLDER}" "${BIN_NAME}.sha1" "${FTL_SECRET}"
+          [[ "$CIRCLE_PR_NUMBER" == "" ]] && ./FTL-client "${FOLDER}" pihole-ftl*.deb "${FTL_SECRET}"
           rm ./FTL-client
           mv "${BIN_NAME}" pihole-FTL
           ls -lah .
@@ -32,27 +40,80 @@ version: 2
         name: "Test"
         command: |
           test/run.sh
+      # Save the files necessary for building the RPM
+    - persist_to_workspace:
+        root: .
+        paths:
+          - pihole-FTL
+          - aux/macvendor.db
+          - Makefile
+          - LICENSE
+          - debian/pihole-FTL.service
+          - rpm/pihole-ftl.spec
+
+.rpm_template: &rpm_template
+  docker:
+    - image: pihole/rpm-builder
+  steps:
+    - attach_workspace:
+        at: .
+    - run:
+        name: "Build RPM"
+        command: |
+          mkdir -p ~/rpmbuild/{SOURCES,SPECS}
+          mv rpm/pihole-ftl.spec ~/rpmbuild/SPECS
+          mv * ~/rpmbuild/SOURCES
+          rpmbuild -bb ~/rpmbuild/SPECS/pihole-ftl.spec --target $RPM_ARCH
+    - run:
+        name: "Upload"
+        command: |
+          [ -z "$FTL_SECRET" ] && exit 0
+          FOLDER=$([ -z "$CIRCLE_TAG" ] && echo "$CIRCLE_BRANCH" || echo "$CIRCLE_TAG")
+          curl https://ftl.pi-hole.net:8080/FTL-client -o FTL-client
+          chmod +x ./FTL-client
+          mv ~/rpmbuild/RPMS/$RPM_ARCH/pihole-ftl*.rpm .
+          [[ "$CIRCLE_PR_NUMBER" == "" ]] && ./FTL-client "${FOLDER}" pihole-ftl*.rpm "${FTL_SECRET}"
+          rm ./FTL-client
 
 jobs:
   arm:
     <<: *job_template
     environment:
       BIN_NAME: "pihole-FTL-arm-linux-gnueabi"
+      DEB_ARCH: "armhf"
 
   armhf:
     <<: *job_template
     environment:
       BIN_NAME: "pihole-FTL-arm-linux-gnueabihf"
+      DEB_ARCH: "armhf"
+
+  armhf-rpm:
+    <<: *rpm_template
+    environment:
+      RPM_ARCH: "armhfp"
 
   aarch64:
     <<: *job_template
     environment:
       BIN_NAME: "pihole-FTL-aarch64-linux-gnu"
+      DEB_ARCH: "arm64"
+
+  aarch64-rpm:
+    <<: *rpm_template
+    environment:
+      RPM_ARCH: "aarch64"
 
   x86_64:
     <<: *job_template
     environment:
       BIN_NAME: "pihole-FTL-linux-x86_64"
+      DEB_ARCH: "amd64"
+
+  x86_64-rpm:
+    <<: *rpm_template
+    environment:
+      RPM_ARCH: "x86_64"
 
   x86_64-musl:
     <<: *job_template
@@ -63,6 +124,12 @@ jobs:
     <<: *job_template
     environment:
       BIN_NAME: "pihole-FTL-linux-x86_32"
+      DEB_ARCH: "i386"
+
+  x86_32-rpm:
+    <<: *rpm_template
+    environment:
+      RPM_ARCH: "i386"
 
 workflows:
   version: 2
@@ -76,7 +143,19 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+      - armhf-rpm:
+          filters:
+            tags:
+              only: /^v.*/
+          requires:
+            - armhf
       - aarch64:
+          filters:
+            tags:
+              only: /^v.*/
+      - aarch64-rpm:
+          requires:
+            - aarch64
           filters:
             tags:
               only: /^v.*/
@@ -84,8 +163,20 @@ workflows:
           filters:
             tags:
               only: /^v.*/
+      - x86_64-rpm:
+          requires:
+            - x86_64
+          filters:
+            tags:
+              only: /^v.*/
 #      - x86_64-musl
       - x86_32:
+          filters:
+            tags:
+              only: /^v.*/
+      - x86_32-rpm:
+          requires:
+            - x86_32
           filters:
             tags:
               only: /^v.*/
