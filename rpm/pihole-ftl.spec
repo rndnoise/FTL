@@ -25,12 +25,14 @@ rm -rf $RPM_BUILD_ROOT
 install -d -m 0755 %{buildroot}%{_bindir}
 install -d -m 0755 %{buildroot}%{_unitdir}
 install -d -m 0755 %{buildroot}%{_tmpfilesdir}
+install -d -m 0755 %{buildroot}/usr/lib/systemd/resolved.conf.d
 install -d -m 0755 %{buildroot}/etc/pihole
 
 # Install files
 install -m 0755 pihole-FTL %{buildroot}%{_bindir}
 install -m 0644 debian/pihole-FTL.service %{buildroot}%{_unitdir}
 install -m 0644 -T debian/%{name}.tmpfile %{buildroot}%{_tmpfilesdir}/%{name}.conf
+install -m 0644 debian/noresolvd.conf %{buildroot}/usr/lib/systemd/resolved.conf.d
 install -m 0644 aux/macvendor.db %{buildroot}/etc/pihole
 
 
@@ -39,6 +41,7 @@ install -m 0644 aux/macvendor.db %{buildroot}/etc/pihole
 %{_bindir}/pihole-FTL
 %{_unitdir}/pihole-FTL.service
 %{_tmpfilesdir}/%{name}.conf
+/usr/lib/systemd/resolved.conf.d/noresolvd.conf
 /etc/pihole/macvendor.db
 
 

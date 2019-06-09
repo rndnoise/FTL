@@ -50,6 +50,7 @@ version: 2
           - LICENSE
           - debian/pihole-FTL.service
           - debian/pihole-ftl.tmpfile
+          - debian/noresolvd.conf
           - rpm/pihole-ftl.spec
 
 .rpm_template: &rpm_template
