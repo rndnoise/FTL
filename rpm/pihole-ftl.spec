@@ -1,5 +1,5 @@
 Name:           pihole-ftl
-Version:        4.3.1
+Version:        5.0.0
 Release:        1
 Summary:        The Pi-hole FTL engine, which provides DNS services
 
