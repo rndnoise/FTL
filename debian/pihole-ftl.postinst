@@ -10,6 +10,10 @@ if [ "$1" = "configure" ]; then
 
     # Set ownership of /etc/pihole
     chown pihole:pihole -R /etc/pihole
+
+    # Restart systemd-resolved so it disables the stub resolver (via the config
+    # we install)
+    deb-systemd-invoke restart systemd-resolved &> /dev/null || true
 fi
 
 # This will be replaced with code from debhelper

@@ -59,6 +59,10 @@ setcap CAP_NET_BIND_SERVICE,CAP_NET_RAW,CAP_NET_ADMIN+eip /usr/bin/pihole-FTL
 # Set ownership of /etc/pihole
 chown pihole:pihole -R /etc/pihole
 
+# Restart systemd-resolved so it disables the stub resolver (via the config
+# we install)
+systemctl restart systemd-resolved &> /dev/null || true
+
 %systemd_post pihole-FTL.service
 
 
