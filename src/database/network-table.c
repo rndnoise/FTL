@@ -364,8 +364,11 @@ void parse_neighbor_cache(void)
 		// Ensure strings are null-terminated in case we hit the max.
 		// length limitation
 		ip[sizeof(ip)-1] = '\0';
-		iface[sizeof(ip)-1] = '\0';
-		hwaddr[sizeof(ip)-1] = '\0';
+		iface[sizeof(iface)-1] = '\0';
+		hwaddr[sizeof(hwaddr)-1] = '\0';
+
+		logg("ip: \"%p\", iface: \"%p\", hwaddr: \"%p\"", ip, iface, hwaddr);
+		logg("ip: \"%s\", iface: \"%s\", hwaddr: \"%s\"", ip, iface, hwaddr);
 
 		// Check if we want to process the line we just read
 		if(num != 3)
