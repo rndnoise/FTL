@@ -142,13 +142,7 @@ static bool get_client_groupids(const clientsData* client, char **groups)
 		logg("Querying gravity database for client %s (counting)", ip);
 
 	// Check if client is configured through the client table
-	if(config.use_sqlite3_extension &&
-	   asprintf(&querystr, "SELECT COUNT(*) FROM client WHERE subnet_match(ip,'%s') = 1;", ip) < 1)
-	{
-		logg("get_client_groupids() - asprintf() error 1");
-		return false;
-	}
-	else if(asprintf(&querystr, "SELECT COUNT(*) FROM client WHERE ip = '%s';", ip) < 1)
+	if(asprintf(&querystr, "SELECT COUNT(*) FROM client WHERE subnet_match(ip,'%s') = 1;", ip) < 1)
 	{
 		logg("get_client_groupids() - asprintf() error 1");
 		return false;
@@ -206,15 +200,8 @@ static bool get_client_groupids(const clientsData* client, char **groups)
 	// non-NULL values of group_id separated by ','. The order of the concatenated elements
 	// is arbitrary, however, is of no relevance for your use case.
 	// We check using a possibly defined subnet and use the first result
-	if(config.use_sqlite3_extension &&
-	   asprintf(&querystr, "SELECT GROUP_CONCAT(group_id) FROM client_by_group WHERE client_id = "
+	if(asprintf(&querystr, "SELECT GROUP_CONCAT(group_id) FROM client_by_group WHERE client_id = "
 	                       "(SELECT id FROM client WHERE subnet_match(ip,\'%s\') = 1 LIMIT 1);", ip) < 1)
-	{
-		logg("get_client_groupids() - asprintf() error 2");
-		return false;
-	}
-	else if(asprintf(&querystr, "SELECT GROUP_CONCAT(group_id) FROM client_by_group WHERE client_id = "
-	                            "(SELECT id FROM client WHERE ip = \'%s\' LIMIT 1);", ip) < 1)
 	{
 		logg("get_client_groupids() - asprintf() error 2");
 		return false;

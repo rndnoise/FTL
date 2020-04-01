@@ -226,8 +226,7 @@ void db_init(void)
 	sqlite3_config(SQLITE_CONFIG_LOG, SQLite3LogCallback, NULL);
 
 	// Register Pi-hole provided SQLite3 extensions (see sqlite3-ext.c)
-	if(config.use_sqlite3_extension)
-		sqlite3_auto_extension((void (*)(void))sqlite3_pihole_extensions_init);
+	sqlite3_auto_extension((void (*)(void))sqlite3_pihole_extensions_init);
 
 	// Only exit early if we already finished the SQLite3 library initialization
 	if(!use_database())

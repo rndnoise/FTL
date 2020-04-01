@@ -372,19 +372,6 @@ void read_FTLconf(void)
 	else
 		logg("   DELAY_STARTUP: No delay requested.");
 
-	// USE_SQLITE3_EXTENSION
-	// defaults to: true
-	config.use_sqlite3_extension = true;
-	buffer = parse_FTLconf(fp, "USE_SQLITE3_EXTENSION");
-
-	if(buffer != NULL && strcasecmp(buffer, "false") == 0)
-		config.use_sqlite3_extension = false;
-
-	if(config.use_sqlite3_extension)
-		logg("   USE_SQLITE3_EXTENSION: Yes");
-	else
-		logg("   USE_SQLITE3_EXTENSION: No");
-
 	// Read DEBUG_... setting from pihole-FTL.conf
 	read_debuging_settings(fp);
 

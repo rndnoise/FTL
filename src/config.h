@@ -35,7 +35,6 @@ typedef struct {
 	bool parse_arp_cache;
 	bool regex_ignorecase;
 	bool cname_inspection;
-	bool use_sqlite3_extension;
 } ConfigStruct;
 
 typedef struct {
