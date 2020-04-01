@@ -26,7 +26,7 @@
 // struct config
 #include "config.h"
 
-static void subnet_match_impl(sqlite3_context *context, int argc, sqlite3_value **argv)
+void subnet_match_impl(sqlite3_context *context, int argc, sqlite3_value **argv)
 {
 	// Exactly two arguments should be submitted to this routine
 	if(argc != 2)
@@ -138,6 +138,12 @@ int sqlite3_pihole_extensions_init(sqlite3 *db, char **pzErrMsg, const struct sq
 	// We define a scalar function here so the last two pointers are NULL.
 	int rc = sqlite3_create_function(db, "subnet_match", 2, SQLITE_UTF8 | SQLITE_DETERMINISTIC, NULL,
 	                                 subnet_match_impl, NULL, NULL);
+
+	if(rc != SQLITE_OK)
+	{
+		logg("Error while initializing the SQLite3 extension subnet_match: %s",
+		     sqlite3_errstr(rc));
+	}
 
 	return rc;
 }
