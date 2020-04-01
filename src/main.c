@@ -114,6 +114,8 @@ int main (int argc, char* argv[])
 	//            terminating in main.c !
 	destroy_shmem();
 
+	db_shutdown();
+
 	//Remove PID file
 	removepid();
 	logg("########## FTL terminated after %.1f ms! ##########", timer_elapsed_msec(EXIT_TIMER));

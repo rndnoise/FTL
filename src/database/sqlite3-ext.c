@@ -129,7 +129,7 @@ static void subnet_match_impl(sqlite3_context *context, int argc, sqlite3_value 
 	}
 }
 
-int sqlite3_pihole_extensions_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi)
+int sqlite3_pihole_extensions_init(sqlite3 *db, char **pzErrMsg, const struct sqlite3_api_routines *pApi)
 {
 	(void)pzErrMsg;  /* Unused parameter */
 
