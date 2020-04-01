@@ -346,9 +346,26 @@ void parse_neighbor_cache(void)
 	// Read ARP cache line by line
 	while(getline(&linebuffer, &linebuffersize, arpfp) != -1)
 	{
+		// Continue if line buffer is invalid
+		logg("linebuffer: %p (linebuffersize: %lu, strlen: %lu), arpfp: %p",
+		     linebuffer,
+		     (unsigned long)linebuffersize,
+		     linebuffer != NULL ? (unsigned long)strlen(linebuffer) : (unsigned long)9999u,
+		     arpfp);
+		if(linebuffer == NULL)
+		{
+			continue;
+		}
+
 		char ip[100], hwaddr[100], iface[100];
 		int num = sscanf(linebuffer, "%99s dev %99s lladdr %99s",
 		                 ip, iface, hwaddr);
+
+		// Ensure strings are null-terminated in case we hit the max.
+		// length limitation
+		ip[sizeof(ip)-1] = '\0';
+		iface[sizeof(ip)-1] = '\0';
+		hwaddr[sizeof(ip)-1] = '\0';
 
 		// Check if we want to process the line we just read
 		if(num != 3)
