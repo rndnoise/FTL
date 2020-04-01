@@ -217,8 +217,6 @@ void db_init(void)
 	// Lock database thread
 	pthread_mutex_lock(&dblock);
 
-	sqlite3_initialize();
-
 	// Initialize SQLite3 logging callback
 	// This ensures SQLite3 errors and warnings are logged to pihole-FTL.log
 	// We use this to possibly catch even more errors in places we do not
@@ -347,11 +345,6 @@ void db_init(void)
 	dbclose();
 
 	logg("Database successfully initialized");
-}
-
-void db_shutdown(void)
-{
-	sqlite3_shutdown();
 }
 
 int db_get_FTL_property(const unsigned int ID)

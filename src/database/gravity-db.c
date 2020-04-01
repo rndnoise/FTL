@@ -201,7 +201,7 @@ static bool get_client_groupids(const clientsData* client, char **groups)
 	// is arbitrary, however, is of no relevance for your use case.
 	// We check using a possibly defined subnet and use the first result
 	if(asprintf(&querystr, "SELECT GROUP_CONCAT(group_id) FROM client_by_group WHERE client_id = "
-	                       "(SELECT id FROM client WHERE subnet_match(ip,\'%s\') = 1 LIMIT 1);", ip) < 1)
+	                       "(SELECT id FROM client WHERE subnet_match(ip,'%s') = 1 LIMIT 1);", ip) < 1)
 	{
 		logg("get_client_groupids() - asprintf() error 2");
 		return false;

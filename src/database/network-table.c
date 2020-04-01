@@ -201,7 +201,7 @@ static int update_netDB_hostname(const int dbID, const char *hostname)
 	if(rc != SQLITE_OK)
 	{
 		logg("update_netDB_hostname(%i, \"%s\") - SQL error prepare (%i): %s",
-		dbID, hostname, rc, sqlite3_errmsg(FTL_db));
+		     dbID, hostname, rc, sqlite3_errmsg(FTL_db));
 		return rc;
 	}
 

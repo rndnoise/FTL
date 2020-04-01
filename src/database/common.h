@@ -13,7 +13,6 @@
 #include "sqlite3.h"
 
 void db_init(void);
-void db_shutdown(void);
 int db_get_FTL_property(const unsigned int ID);
 bool db_set_FTL_property(const unsigned int ID, const int value);
 
