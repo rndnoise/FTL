@@ -12,4 +12,4 @@
 extern void subnet_match_impl(sqlite3_context *context, int argc, sqlite3_value **argv);
 
 // Initialization point for SQLite3 extensions
-extern int sqlite3_pihole_extensions_init(sqlite3 *db, char **pzErrMsg, const struct sqlite3_api_routines *pApi);
+extern int sqlite3_pihole_extensions_init(sqlite3 *db, const char **pzErrMsg, const struct sqlite3_api_routines *pApi);
