@@ -437,7 +437,7 @@ void parse_neighbor_cache(void)
 
 		// This client is known (by its IP address) to pihole-FTL if
 		// findClientID() returned a non-negative index
-		if(clientID >= 0)
+		if(clientID >= 0 && clientID < clients_array_size)
 		{
 			client_status[clientID] = CLIENT_ARP_COMPLETE;
 			client = getClient(clientID, true);
@@ -568,8 +568,9 @@ void parse_neighbor_cache(void)
 		}
 		// Skip if already handled above (first check against clients_array_size as we might have added
 		// more clients to FTL's memory herein (those known only from the database))
-		else if(clientID < clients_array_size && 
-		        client_status[clientID] != CLIENT_NOT_HANDLED)
+		else if((clientID < clients_array_size &&
+		         client_status[clientID] != CLIENT_NOT_HANDLED) ||
+			clientID >= clients_array_size)
 		{
 			if(config.debug & DEBUG_ARP)
 				logg("Network table: Client %s known through ARP/neigh cache",
