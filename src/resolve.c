@@ -80,6 +80,8 @@ static char *resolveHostname(const char *addr)
 	if(strcmp(addr, "0.0.0.0") == 0)
 	{
 		hostname = strdup("hidden");
+		if(config.debug & DEBUG_API)
+			logg("---> \"%s\"", hostname);
 		//if(hostname == NULL) return NULL;
 		return hostname;
 	}
@@ -100,6 +102,13 @@ static char *resolveHostname(const char *addr)
 	nsbck = _res.nsaddr_list[MAXNS-1].sin_addr;
 	// ... force FTL resolver to 127.0.0.1
 	inet_pton(AF_INET, "127.0.0.1", &_res.nsaddr_list[MAXNS-1].sin_addr);
+
+	if(config.debug & DEBUG_API)
+	{
+		logg("Using resolvers:");
+		for(unsigned int i = 0u; i < MAXNS; i++)
+			logg(" %u: \"%s\"", i, inet_ntoa(_res.nsaddr_list[i].sin_addr));
+	}
 
 	// Test if we want to resolve an IPv6 address
 	if(strstr(addr,":") != NULL)
@@ -140,6 +149,9 @@ static char *resolveHostname(const char *addr)
 
 	// Restore ns record in _res
 	_res.nsaddr_list[MAXNS-1].sin_addr = nsbck;
+
+	if(config.debug & DEBUG_API)
+		logg(" ---> \"%s\" (\"%s\")", hostname, he != NULL ? he->h_name : "(NULL)");
 
 	// Return result
 	return hostname;
