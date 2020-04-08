@@ -38,6 +38,7 @@ typedef struct {
 	bool parse_arp_cache;
 	bool regex_ignorecase;
 	bool cname_inspection;
+	bool force_first_resolver;
 } ConfigStruct;
 
 typedef struct {

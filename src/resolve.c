@@ -82,7 +82,6 @@ static char *resolveHostname(const char *addr)
 		hostname = strdup("hidden");
 		if(config.debug & DEBUG_API)
 			logg("---> \"%s\"", hostname);
-		//if(hostname == NULL) return NULL;
 		return hostname;
 	}
 
@@ -96,18 +95,21 @@ static char *resolveHostname(const char *addr)
 		res_initialized = true;
 	}
 
-	// Force last available (MAXNS-1) server used for lookups to 127.0.0.1 (FTL itself)
+	// Add FTL as resolver for lookups
 	struct in_addr nsbck = { 0 };
+	unsigned int resid = config.force_first_resolver ? 1u : MAXNS-1u;
 	// Back up corresponding ns record in _res and ...
-	nsbck = _res.nsaddr_list[MAXNS-1].sin_addr;
+	nsbck = _res.nsaddr_list[resid].sin_addr;
 	// ... force FTL resolver to 127.0.0.1
-	inet_pton(AF_INET, "127.0.0.1", &_res.nsaddr_list[MAXNS-1].sin_addr);
+	inet_pton(AF_INET, "127.0.0.1", &_res.nsaddr_list[resid].sin_addr);
 
+	// Log used resolvers when in debug mode
 	if(config.debug & DEBUG_API)
 	{
-		logg("Using resolvers:");
+		logg("Using resolvers (added FTL as %s resolver):",
+		     config.force_first_resolver ? "first" : "last");
 		for(unsigned int i = 0u; i < MAXNS; i++)
-			logg(" %u: \"%s\"", i, inet_ntoa(_res.nsaddr_list[i].sin_addr));
+			logg(" %u: %s", i, inet_ntoa(_res.nsaddr_list[i].sin_addr));
 	}
 
 	// Test if we want to resolve an IPv6 address
@@ -151,7 +153,7 @@ static char *resolveHostname(const char *addr)
 	_res.nsaddr_list[MAXNS-1].sin_addr = nsbck;
 
 	if(config.debug & DEBUG_API)
-		logg(" ---> \"%s\" (\"%s\")", hostname, he != NULL ? he->h_name : "(NULL)");
+		logg(" ---> \"%s\" (%s)", hostname, he != NULL ? he->h_name : "N/A");
 
 	// Return result
 	return hostname;

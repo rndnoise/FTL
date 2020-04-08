@@ -372,6 +372,19 @@ void read_FTLconf(void)
 	else
 		logg("   DELAY_STARTUP: No delay requested.");
 
+	// FORCE_FIRST_RESOLVER
+	// defaults to: false
+	config.force_first_resolver = false;
+	buffer = parse_FTLconf(fp, "FORCE_FIRST_RESOLVER");
+
+	if(buffer != NULL && strcasecmp(buffer, "true") == 0)
+		config.force_first_resolver = true;
+
+	if(config.force_first_resolver)
+		logg("   FORCE_FIRST_RESOLVER: Active");
+	else
+		logg("   FORCE_FIRST_RESOLVER: Inactive");
+
 	// Read DEBUG_... setting from pihole-FTL.conf
 	read_debuging_settings(fp);
 
