@@ -97,7 +97,7 @@ static char *resolveHostname(const char *addr)
 
 	// Add FTL as resolver for lookups
 	struct in_addr nsbck = { 0 };
-	unsigned int resid = config.force_first_resolver ? 1u : MAXNS-1u;
+	unsigned int resid = config.force_first_resolver ? 0u : MAXNS-1u;
 	// Back up corresponding ns record in _res and ...
 	nsbck = _res.nsaddr_list[resid].sin_addr;
 	// ... force FTL resolver to 127.0.0.1
