@@ -302,17 +302,16 @@ void resolveClients(const bool onlynew)
 	int skipped = 0;
 	for(int clientID = 0; clientID < clientscount; clientID++)
 	{
-		// Get client pointer
+		// Memory access needs to get locked
+		lock_shm();
+		// Get client pointer for the first time (reading data)
 		clientsData* client = getClient(clientID, true);
 		if(client == NULL)
 		{
-			logg("ERROR: Unable to get client pointer with ID %i, skipping...", clientID);
+			logg("ERROR: Unable to get client pointer (1) with ID %i, skipping...", clientID);
 			skipped++;
 			continue;
 		}
-
-		// Memory access needs to get locked
-		lock_shm();
 		bool newflag = client->new;
 		size_t ippos = client->ippos;
 		size_t oldnamepos = client->namepos;
@@ -330,6 +329,17 @@ void resolveClients(const bool onlynew)
 		size_t newnamepos = resolveAndAddHostname(ippos, oldnamepos);
 
 		lock_shm();
+		// Get client pointer for the second time (writing data)
+		// We cannot use the same pointer again as we released
+		// the lock in between so we cannot know if something
+		// happened to the shared memory object (resize event)
+		client = getClient(clientID, true);
+		if(client == NULL)
+		{
+			logg("ERROR: Unable to get client pointer (2) with ID %i, skipping...", clientID);
+			skipped++;
+			continue;
+		}
 		// Store obtained host name (may be unchanged)
 		client->namepos = newnamepos;
 		// Mark entry as not new
