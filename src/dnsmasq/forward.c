@@ -16,6 +16,7 @@
 
 #include "dnsmasq.h"
 #include "../dnsmasq_interface.h"
+extern void logg(const char* format, ...) __attribute__ ((format (gnu_printf, 1, 2)));
 
 static struct frec *lookup_frec(unsigned short id, void *hash);
 static struct frec *lookup_frec_by_sender(unsigned short id,
@@ -1556,12 +1557,18 @@ void receive_query(struct listener *listen, time_t now)
       /* find queries for zones we're authoritative for, and answer them directly */
       if (!auth_dns && !option_bool(OPT_LOCALISE))
 	for (zone = daemon->auth_zones; zone; zone = zone->next)
+	{
+	  logg("DEBUG: zone = %p", zone);
+	  if(zone != NULL)
+	    logg("DEBUG: zone->domain = %p = \"%s\"", zone->domain, zone->domain);
+	  logg("DEBUG: daemon->namebuff = %p = \"%s\"", daemon->namebuff, daemon->namebuff);
 	  if (in_zone(zone, daemon->namebuff, NULL))
 	    {
 	      auth_dns = 1;
 	      local_auth = 1;
 	      break;
 	    }
+	}
 #endif
       
 #ifdef HAVE_LOOP
