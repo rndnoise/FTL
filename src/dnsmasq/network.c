@@ -433,6 +433,7 @@ static int iface_allowed(struct iface_param *param, int if_index, char *label,
 	}
     }
   
+logg("DEBUG iface_allowed: addr->sa.sa_family = %u (%u %u)", addr->sa.sa_family, AF_INET, AF_INET6);
   if (addr->sa.sa_family == AF_INET &&
       !iface_check(AF_INET, (union all_addr *)&addr->in.sin_addr, label, &auth_dns))
     return 1;
@@ -450,11 +451,15 @@ static int iface_allowed(struct iface_param *param, int if_index, char *label,
     }
   else
     for (tmp = daemon->dhcp_except; tmp; tmp = tmp->next)
+    {
+
+logg("DEBUG iface_allowed: daemon->dhcp_except->name = %p '%s'", tmp->name, tmp->name);
       if (tmp->name && wildcard_match(tmp->name, ifr.ifr_name))
 	{
 	  tftp_ok = 0;
 	  dhcp_ok = 0;
 	}
+    }
 #endif
  
   
@@ -464,8 +469,11 @@ static int iface_allowed(struct iface_param *param, int if_index, char *label,
       /* dedicated tftp interface list */
       tftp_ok = 0;
       for (tmp = daemon->tftp_interfaces; tmp; tmp = tmp->next)
+      {
+logg("DEBUG iface_allowed: daemon->tftp_interfaces->name = %p '%s'", tmp->name, tmp->name);
 	if (tmp->name && wildcard_match(tmp->name, ifr.ifr_name))
 	  tftp_ok = 1;
+      }
     }
 #endif
   
@@ -485,6 +493,7 @@ static int iface_allowed(struct iface_param *param, int if_index, char *label,
       iface->label = is_label;
       if ((iface->name = whine_malloc(strlen(ifr.ifr_name)+1)))
 	{
+logg("DEBUG iface_allowed: Adding iface->name = %p '%s'", iface->name, iface->name);
 	  strcpy(iface->name, ifr.ifr_name);
 	  iface->next = daemon->interfaces;
 	  daemon->interfaces = iface;
