@@ -16,6 +16,7 @@
 
 #include "dnsmasq.h"
 #include "../dnsmasq_interface.h"
+extern void logg(const char* format, ...) __attribute__ ((format (gnu_printf, 1, 2)));
 
 #ifdef HAVE_LINUX_NETWORK
 
@@ -128,8 +129,20 @@ int iface_check(int family, union all_addr *addr, char *name, int *auth)
       ret = 0;
 
       for (tmp = daemon->if_names; tmp; tmp = tmp->next)
+      {
+	logg("DEBUG iface_check: daemon = %p", daemon);
+	logg("DEBUG iface_check: daemon->if_names = %p", daemon->if_names);
+	logg("DEBUG iface_check: name = %p '%s'", name, name);
+	logg("DEBUG iface_check: tmp = %p", tmp);
+	logg("DEBUG iface_check: tmp->addr = %p", &tmp->addr);
+	logg("DEBUG iface_check: tmp->addr.sa.sa_family = %u", (unsigned int)tmp->addr.sa.sa_family);
+	for(unsigned int i = 0; i < sizeof(tmp->addr.sa.sa_data)/sizeof(tmp->addr.sa.sa_data[0]); i++)
+		logg("DEBUG iface_check: sa_data[%02u] = %u", i, (unsigned int)tmp->addr.sa.sa_data[i]);
+	logg("DEBUG iface_check: tmp->name = %p '%s'", tmp->name, tmp->name);
+	logg("DEBUG iface_check: tmp->used = %p %i", &tmp->used, tmp->used);
 	if (tmp->name && wildcard_match(tmp->name, name))
 	  ret = tmp->used = 1;
+      }
 	        
       if (addr)
 	for (tmp = daemon->if_addrs; tmp; tmp = tmp->next)
@@ -413,6 +426,7 @@ static int iface_allowed(struct iface_param *param, int if_index, char *label,
 	      lo->used = 1;
 	      lo->next = daemon->if_names;
 	      daemon->if_names = lo;
+	      logg("DEBUG iface_allowed: daemon->if_names->name = %p '%s'", lo->name, lo->name);
 	    }
 	  else
 	    free(lo);

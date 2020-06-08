@@ -15,6 +15,7 @@
 */
 
 #include "dnsmasq.h"
+extern void logg(const char* format, ...) __attribute__ ((format (gnu_printf, 1, 2)));
 
 #ifdef HAVE_AUTH
 
@@ -71,6 +72,9 @@ static int filter_zone(struct auth_zone *zone, int flag, union all_addr *addr_u)
 
 int in_zone(struct auth_zone *zone, char *name, char **cut)
 {
+  logg("DEBUG in_zone: name = %p '%s'", name, name);
+  logg("DEBUG in_zone: zone = %p", zone);
+  logg("DEBUG in_zone: zone->domain = %p '%s'", zone->domain, zone->domain);
   size_t namelen = strlen(name);
   size_t domainlen = strlen(zone->domain);
 

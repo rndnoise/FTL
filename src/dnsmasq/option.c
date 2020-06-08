@@ -21,6 +21,7 @@
 
 /* Pi-hole modification */
 extern char *get_FTL_version(void);
+extern void logg(const char* format, ...) __attribute__ ((format (gnu_printf, 1, 2)));
 /************************/
 
 static volatile int mem_recover = 0;
@@ -2117,9 +2118,11 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
 	struct auth_zone *new;
 	
 	comma = split(arg);
-		
+	logg("DEBUG option::auth-zone: arg = %p '%s'", arg, arg);
+	logg("DEBUG option::auth-zone: comma = %p '%s'", comma, comma);
 	new = opt_malloc(sizeof(struct auth_zone));
 	new->domain = opt_string_alloc(arg);
+	logg("DEBUG option::auth-zone: new->domain = %p '%s'", new->domain, new->domain);
 	new->subnet = NULL;
 	new->exclude = NULL;
 	new->interface_names = NULL;
@@ -2136,6 +2139,10 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
 
 	    comma = split(arg);
 	    prefix = split_chr(arg, '/');
+
+	    logg("DEBUG option::auth-zone_sub: arg = %p '%s'", arg, arg);
+	    logg("DEBUG option::auth-zone_sub: comma = %p '%s'", comma, comma);
+	    logg("DEBUG option::auth-zone_sub: prefix = %p '%s'", prefix, prefix);
 	    
 	    if (prefix && !atoi_check(prefix, &prefixlen))
 	      ret_err(gen_err);
@@ -2436,12 +2443,16 @@ static int one_opt(int option, char *arg, char *errstr, char *gen_err, int comma
     case 'i':  /* --interface */
       do {
 	struct iname *new = opt_malloc(sizeof(struct iname));
+	logg("DEBUG option::interface arg 1 = %p '%s'", arg, arg);
 	comma = split(arg);
+	logg("DEBUG option::interface comma = %p '%s'", comma, comma);
+	logg("DEBUG option::interface arg 2 = %p '%s'", arg, arg);
 	new->next = daemon->if_names;
 	daemon->if_names = new;
 	/* new->name may be NULL if someone does
 	   "interface=" to disable all interfaces except loop. */
 	new->name = opt_string_alloc(arg);
+	logg("DEBUG option::interface new->name = %p '%s'", new->name, new->name);
 	new->used = 0;
 	arg = comma;
       } while (arg);
