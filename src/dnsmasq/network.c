@@ -133,19 +133,21 @@ int iface_check(int family, union all_addr *addr, char *name, int *auth)
 	logg("DEBUG iface_check: daemon = %p", daemon);
 	logg("DEBUG iface_check: daemon->if_names = %p", daemon->if_names);
 	logg("DEBUG iface_check: name = %p '%s'", name, name);
+	logg("DEBUG iface_check: addr = %p", addr);
 	logg("DEBUG iface_check: tmp = %p", tmp);
-	logg("DEBUG iface_check: tmp->addr = %p", &tmp->addr);
-	logg("DEBUG iface_check: tmp->addr.sa.sa_family = %u", (unsigned int)tmp->addr.sa.sa_family);
-	for(unsigned int i = 0; i < sizeof(tmp->addr.sa.sa_data)/sizeof(tmp->addr.sa.sa_data[0]); i++)
-		logg("DEBUG iface_check: sa_data[%02u] = %u", i, (unsigned int)tmp->addr.sa.sa_data[i]);
-	logg("DEBUG iface_check: tmp->name = %p '%s'", tmp->name, tmp->name);
-	logg("DEBUG iface_check: tmp->used = %p %i", &tmp->used, tmp->used);
 	if (tmp->name && wildcard_match(tmp->name, name))
 	  ret = tmp->used = 1;
       }
 	        
       if (addr)
 	for (tmp = daemon->if_addrs; tmp; tmp = tmp->next)
+	{
+	logg("DEBUG iface_check: tmp = %p", tmp);
+	logg("DEBUG iface_check: tmp->addr = %p", &tmp->addr); 
+	logg("DEBUG iface_check: tmp->addr.sa = %p", &tmp->addr.sa);
+	logg("DEBUG iface_check: tmp->addr.sa.sa_family = %p", &tmp->addr.sa.sa_family);
+	for(unsigned int i = 0; i < sizeof(tmp->addr.sa.sa_data)/sizeof(tmp->addr.sa.sa_data[0]); i++)
+		logg("DEBUG iface_check: sa_data[%02u] = %u", i, (unsigned int)tmp->addr.sa.sa_data[i]);
 	  if (tmp->addr.sa.sa_family == family)
 	    {
 	      if (family == AF_INET &&
@@ -156,6 +158,7 @@ int iface_check(int family, union all_addr *addr, char *name, int *auth)
 					  &addr->addr6))
 		ret = match_addr = tmp->used = 1;
 	    }          
+	}
     }
   
   if (!match_addr)
@@ -594,9 +597,21 @@ int enumerate_interfaces(int reset)
   /* remove addresses stored against interface_names */
   for (intname = daemon->int_names; intname; intname = intname->next)
     {
+      logg("DEBUG enumerate_interfaces: intname = %p", intname);
+      if(intname != NULL)
+      	logg("DEBUG enumerate_interfaces: intname->addr = %p", intname->addr);
+      else
+      	logg("DEBUG enumerate_interfaces: intname is NULL !!!");
       for (addr = intname->addr; addr; addr = tmp)
 	{
+          logg("DEBUG enumerate_interfaces: addr = %p", addr);
+	  if(addr != NULL)
+          	logg("DEBUG enumerate_interfaces: addr = %p", addr);
+	else
+      		logg("DEBUG enumerate_interfaces: addr is NULL !!!");
+		
 	  tmp = addr->next;
+          logg("DEBUG enumerate_interfaces: tmp = %p", tmp);
 	  addr->next = spare;
 	  spare = addr;
 	}
@@ -925,6 +940,14 @@ static struct listener *create_listeners(union mysockaddr *addr, int do_tftp, in
       l->tftpfd = tftpfd;	
       l->iface = NULL;
     }
+
+	logg("DEBUG create_listeners: fd = %i", fd);
+	logg("DEBUG create_listeners: tcpfd = %i", tcpfd);
+	logg("DEBUG create_listeners: tfptfd = %i", tftpfd);
+	if(l != NULL)
+		logg("DEBUG create_listeners: family = %i", l->family);
+	else
+		logg("DEBUG create_listeners: l is NULL !!!");
 
   return l;
 }

@@ -19,6 +19,7 @@
 
 #include "dnsmasq.h"
 #include "../dnsmasq_interface.h"
+extern void logg(const char* format, ...) __attribute__ ((format (gnu_printf, 1, 2)));
 
 struct daemon *daemon;
 
@@ -1782,6 +1783,12 @@ static void check_dns_listeners(time_t now)
 	
   for (listener = daemon->listeners; listener; listener = listener->next)
     {
+      logg("DEBUG check_dns_listeners: listener = %p", listener);
+      logg("DEBUG check_dns_listeners: &listener->family = %p", &listener->family);
+      logg("DEBUG check_dns_listeners: listener->family = %i", listener->family);
+      logg("DEBUG check_dns_listeners: &listener->fd = %p", &listener->fd);
+      logg("DEBUG check_dns_listeners: listener->fd = %i", listener->fd);
+      logg("DEBUG check_dns_listeners: listener->iface = %p", listener->iface);
       if (listener->fd != -1 && poll_check(listener->fd, POLLIN))
 	receive_query(listener, now); 
       
