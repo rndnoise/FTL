@@ -16,6 +16,7 @@
 
 #include "dnsmasq.h"
 #include "../dnsmasq_interface.h"
+extern void logg(const char* format, ...) __attribute__ ((format (gnu_printf, 1, 2)));
 
 int extract_name(struct dns_header *header, size_t plen, unsigned char **pp, 
 		 char *name, int isExtract, int extrabytes)
@@ -1368,7 +1369,10 @@ size_t answer_request(struct dns_header *header, char *limit, size_t qlen,
     dryrun = 1;
 
   for (rec = daemon->mxnames; rec; rec = rec->next)
+  {
+	logg("DEBUG answer_request: rec = %p", rec);
     rec->offset = 0;
+  }
   
  rerun:
   /* determine end of question section (we put answers there) */

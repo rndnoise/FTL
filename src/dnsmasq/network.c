@@ -598,7 +598,7 @@ int enumerate_interfaces(int reset)
   for (intname = daemon->int_names; intname; intname = intname->next)
     {
       logg("DEBUG enumerate_interfaces: intname = %p", intname);
-      if(intname != NULL)
+      if(intname != NULL && intname->addr != NULL)
       	logg("DEBUG enumerate_interfaces: intname->addr = %p", intname->addr);
       else
       	logg("DEBUG enumerate_interfaces: intname is NULL !!!");

@@ -16,6 +16,7 @@
 
 #include "dnsmasq.h"
 #include "../dnsmasq_interface.h"
+extern void logg(const char* format, ...) __attribute__ ((format (gnu_printf, 1, 2)));
 
 static struct crec *cache_head = NULL, *cache_tail = NULL, **hash_table = NULL;
 #ifdef HAVE_DHCP
@@ -616,6 +617,14 @@ static struct crec *really_insert(char *name, union all_addr *addr, unsigned sho
       new->name.bname = big_name;
       new->flags |= F_BIGNAME;
     }
+
+  logg("DEBUG really_insert: name = %p '%s'", name, name);
+  logg("DEBUG really_insert: new = %p", new);
+  if(new != NULL)
+    logg("DEBUG really_insert: new = %p '%s'", new->name.namep);
+  else
+    logg("DEBUG really_insert: new is NULL !!!");
+  logg("DEBUG really_insert: cache_get_name(new) = %p '%s'", cache_get_name(new), cache_get_name(new));
 
   if (name)
     strcpy(cache_get_name(new), name);
