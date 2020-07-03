@@ -372,6 +372,7 @@ void FTL_reset_per_client_domain_data(void)
 	}
 }
 
+#include "config.h"
 void FTL_reload_all_domainlists(void)
 {
 	// Flush messages stored in the long-term database
@@ -386,6 +387,9 @@ void FTL_reload_all_domainlists(void)
 
 	// Read and compile possible regex filters
 	// only after having called gravityDB_open()
+
+	if(config.debug & DEBUG_DATABASE)
+		logg("Reading regex from database...");
 	read_regex_from_database();
 
 	// Reset FTL's internal DNS cache storing whether a specific domain
