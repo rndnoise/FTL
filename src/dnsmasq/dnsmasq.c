@@ -20,6 +20,8 @@
 #include "dnsmasq.h"
 #include "../dnsmasq_interface.h"
 
+#include "../log.h"
+
 struct daemon *daemon;
 
 static volatile pid_t pid = 0;
@@ -1819,8 +1821,9 @@ static void check_dns_listeners(time_t now)
 	     have no effect. This avoids two processes reading from the same
 	     netlink fd and screwing the pooch entirely.
 	  */
- 
+         logg("TCP: Enumerating interfaces...");
 	  enumerate_interfaces(0);
+          logg("TCP: ...done");
 	  
 	  if (option_bool(OPT_NOWILD))
 	    iface = listener->iface; /* May be NULL */
@@ -1845,7 +1848,10 @@ static void check_dns_listeners(time_t now)
 		      break;
 		  
 		  if (!iface && !loopback_exception(listener->tcpfd, tcp_addr.sa.sa_family, &addr, intr_name))
+                  {
+                    logg("TCP: No interface and no loopback exception, closing connection");
 		    client_ok = 0;
+                  }
 		}
 	      
 	      if (option_bool(OPT_CLEVERBIND))
@@ -1858,12 +1864,27 @@ static void check_dns_listeners(time_t now)
 		     an allowed interface. As a side effect, we get the netmask of the
 		     interface too, for localisation. */
 		  
+                char buf1[INET6_ADDRSTRLEN] = { 0 };
+                inet_ntop(tcp_addr.sa.sa_family, tcp_addr.sa.sa_family == AF_INET ? (struct in_addr*)&tcp_addr.in.sin_addr : (struct in6_addr*)&tcp_addr.in6.sin6_addr, buf1, INET6_ADDRSTRLEN);
 		  for (iface = daemon->interfaces; iface; iface = iface->next)
+                  {
+                    char buf[INET6_ADDRSTRLEN] = { 0 };
+                    inet_ntop(((union mysockaddr *)iface)->sa.sa_family, &((union mysockaddr *)iface)->in.sin_addr, buf, INET6_ADDRSTRLEN);
+                    logg("TCP: Checking interface %s (%s:%i) vs %s:%i", iface->name,
+                         buf, ntohs(((union mysockaddr *)iface)->in.sin_port),
+                         buf1, ntohs(tcp_addr.in.sin_port));
 		    if (sockaddr_isequal(&iface->addr, &tcp_addr))
+                    {
+                      logg("TCP: MATCH");
 		      break;
+                    }
+                  }
 		  
 		  if (!iface)
+                  {
 		    client_ok = 0;
+                      logg("TCP: NO MATCH, closing connection");
+                  }
 		}
 	    }
 	  
