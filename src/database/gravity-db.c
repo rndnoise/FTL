@@ -660,6 +660,8 @@ int gravityDB_count(const enum gravity_tables list)
 		return DB_FAILED;
 	}
 
+	if(config.debug & DEBUG_DATABASE)
+		logg("Stepping...");
 	// Perform query
 	rc = sqlite3_step(table_stmt);
 	if(rc != SQLITE_ROW){
@@ -673,11 +675,20 @@ int gravityDB_count(const enum gravity_tables list)
 		return DB_FAILED;
 	}
 
+	if(config.debug & DEBUG_DATABASE)
+		logg("Getting result...");
+
 	// Get result when there was no error
 	const int result = sqlite3_column_int(table_stmt, 0);
 
+	if(config.debug & DEBUG_DATABASE)
+		logg("Got result: %i", result);
+
 	// Finalize statement
 	gravityDB_finalizeTable();
+
+	if(config.debug & DEBUG_DATABASE)
+		logg("Finalized");
 
 	// Return result
 	return result;
