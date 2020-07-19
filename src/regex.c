@@ -135,6 +135,7 @@ int match_regex(const char *input, const int clientID, const unsigned char regex
 static void free_regex(void)
 {
 	// Reset FTL's DNS cache
+	logg("Resetting per-client domain data (%d domains, %d cache entries)", counters->domains, counters->dns_cache_size);
 	FTL_reset_per_client_domain_data();
 
 	// Return early if we don't use any regex filters
@@ -143,12 +144,14 @@ static void free_regex(void)
 		return;
 
 	// Reset client configuration
+	logg("Resetting per-client regex data (%d clients)", counters->clients);
 	for(int clientID = 0; clientID < counters->clients; clientID++)
 	{
 		reset_per_client_regex(clientID);
 	}
 
 	// Free regex datastructure
+	logg("Walk configured regex and free them");
 	for(int regexid = 0; regexid < 2; regexid++)
 	{
 		for(int index = 0; index < counters->num_regex[regexid]; index++)
@@ -270,15 +273,18 @@ void read_regex_from_database(void)
 	// Free regex filters
 	// This routine is safe to be called even when there
 	// are no regex filters at the moment
+	logg("Freeing previously loaded regex");
 	free_regex();
 
 	// Start timer for regex compilation analysis
 	timer_start(REGEX_TIMER);
 
 	// Read and compile regex blacklist
+	logg("Reading black regex table");
 	read_regex_table(REGEX_BLACKLIST);
 
 	// Read and compile regex whitelist
+	logg("Reading white regex table");
 	read_regex_table(REGEX_WHITELIST);
 
 
