@@ -546,18 +546,9 @@ void parse_neighbor_cache(void)
 		ipaddr = getstr(client->ippos);
 		hostname = getstr(client->namepos);
 
-		// Skip if this client was inactive (last query may be older than 24 hours)
-		// This also reduces database I/O when nothing would change anyways
-		if(client->count < 1 || client->numQueriesARP < 1)
-		{
-			if(config.debug & DEBUG_ARP)
-				logg("Network table: Client %s has zero new queries (count: %d, ARPcount: %d)",
-				     ipaddr, client->count, client->numQueriesARP);
-			continue;
-		}
 		// Skip if already handled above (first check against clients_array_size as we might have added
 		// more clients to FTL's memory herein (those known only from the database))
-		else if(client_status[clientID] != CLIENT_NOT_HANDLED)
+		if(client_status[clientID] != CLIENT_NOT_HANDLED)
 		{
 			if(config.debug & DEBUG_ARP)
 				logg("Network table: Client %s known through ARP/neigh cache",
