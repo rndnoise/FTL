@@ -931,6 +931,12 @@ char* __attribute__((malloc)) getDatabaseHostname(const char* ipaddr)
 		return strdup("");
 	}
 
+	if(config.debug & (DEBUG_DATABASE | DEBUG_RESOLVER))
+	{
+		logg("getDatabaseHostname(): \"%s\" with ? = \"%s\"",
+		     querystr, ipaddr);
+	}
+
 	// Bind ipaddr to prepared statement
 	if((rc = sqlite3_bind_text(stmt, 1, ipaddr, -1, SQLITE_STATIC)) != SQLITE_OK)
 	{
@@ -947,12 +953,19 @@ char* __attribute__((malloc)) getDatabaseHostname(const char* ipaddr)
 	{
 		// Database record found (result might be empty)
 		hostname = strdup((char*)sqlite3_column_text(stmt, 0));
+
+		if(config.debug & (DEBUG_DATABASE | DEBUG_RESOLVER))
+			logg(" ---> \"%s\"", hostname);
 	}
 	else
 	{
 		// Not found or error (will be logged automatically through our SQLite3 hook)
 		hostname = strdup("");
+
+		if(config.debug & (DEBUG_DATABASE | DEBUG_RESOLVER))
+			logg(" ---> not found");
 	}
+
 
 	// Finalize statement and close database handle
 	sqlite3_reset(stmt);
