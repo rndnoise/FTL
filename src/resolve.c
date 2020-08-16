@@ -24,6 +24,8 @@
 #include <resolv.h>
 // logg_hostname_warning()
 #include "database/message-table.h"
+// want_reresolve
+#include "signals.h"
 
 static bool res_initialized = false;
 
@@ -444,7 +446,8 @@ void *DNSclient_thread(void *val)
 		}
 
 		// Run every hour to update possibly changed client host names
-		if(time(NULL) % RERESOLVE_INTERVAL == 0)
+		if(time(NULL) % RERESOLVE_INTERVAL == 0 ||
+		   want_reresolve)
 		{
 			// Try to resolve all client host names (onlynew=false)
 			resolveClients(false);
