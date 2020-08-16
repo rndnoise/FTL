@@ -446,9 +446,14 @@ void *DNSclient_thread(void *val)
 		}
 
 		// Run every hour to update possibly changed client host names
-		if(time(NULL) % RERESOLVE_INTERVAL == 0 ||
-		   want_reresolve)
+		if(time(NULL) % RERESOLVE_INTERVAL == 0)
+			want_reresolve = true;
+
+		if(want_reresolve)
 		{
+			// Reset want_resolve flag
+			want_reresolve = false;
+
 			// Try to resolve all client host names (onlynew=false)
 			resolveClients(false);
 			// Try to resolve all upstream destination host names (onlynew=false)

@@ -70,7 +70,11 @@ void *DB_thread(void *val)
 		// Parse neighbor cache (fill network table)
 		// if requested and enabled
 		if(want_neighbor_parsing && config.parse_arp_cache)
+		{
+			want_neighbor_parsing = false;
 			parse_neighbor_cache();
+		}
+
 		sleepms(100);
 	}
 
