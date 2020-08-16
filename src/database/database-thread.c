@@ -8,20 +8,20 @@
 *  This file is copyright under the latest version of the EUPL.
 *  Please see LICENSE file for your rights under this license. */
 
-#include "FTL.h"
+#include "../FTL.h"
 #include "database-thread.h"
 #include "common.h"
 // [un]lock_shm();
-#include "shmem.h"
+#include "../shmem.h"
 // parse_neighbor_cache()
 #include "network-table.h"
 // DB_save_queries()
 #include "query-table.h"
-#include "config.h"
-#include "log.h"
-#include "timers.h"
+#include "../config.h"
+#include "../log.h"
+#include "../timers.h"
 // global variable killed
-#include "signals.h"
+#include "../signals.h"
 
 void *DB_thread(void *val)
 {
@@ -63,10 +63,14 @@ void *DB_thread(void *val)
 				DBdeleteoldqueries = false;
 			}
 
-			// Parse neighbor cache (fill network table) if enabled
-			if (config.parse_arp_cache)
-				parse_neighbor_cache();
+			// Request neighbor cache parsing
+			want_neighbor_parsing = true;
 		}
+
+		// Parse neighbor cache (fill network table)
+		// if requested and enabled
+		if(want_neighbor_parsing && config.parse_arp_cache)
+			parse_neighbor_cache();
 		sleepms(100);
 	}
 
