@@ -824,26 +824,38 @@ void FTL_dnsmasq_reload(void)
 	logg("Reloading DNS cache");
 
 	// Reload the privacy level in case the user changed it
+	logg("Getting privacy level");
 	get_privacy_level(NULL);
+	logg("Got privacy level");
 
 	// Inspect 01-pihole.conf to see if Pi-hole blocking is enabled,
 	// i.e. if /etc/pihole/gravity.list is sourced as addn-hosts file
+	logg("Getting blocking status");
 	check_blocking_status();
+	logg("Got blocking status");
 
 	// Reread pihole-FTL.conf to see which blocking mode the user wants to use
 	// It is possible to change the blocking mode here as we anyhow clear the
 	// cache and reread all blocking lists
 	// Passing NULL to this function means it has to open the config file on
 	// its own behalf (on initial reading, the config file is already opened)
+	logg("Getting blocking mode");
 	get_blocking_mode(NULL);
+	logg("Got blocking mode");
 	// Update blocking metadata (target IP addresses and DNS header flags)
 	// as the blocking mode might have changed
+	logg("Preparing blocking metadata");
 	prepare_blocking_metadata();
+	logg("Prepared blocking metadata");
 
 	// Reread pihole-FTL.conf to see which debugging flags are set
+	logg("Reading debugging settings");
 	read_debuging_settings(NULL);
+	logg("Read debugging settings");
 
+	logg("Reloading domain lists");
 	FTL_reload_all_domainlists();
+	logg("Reloaded domain lists");
 
 	// Print current set of capabilities if requested via debug flag
 	if(config.debug & DEBUG_CAPS)

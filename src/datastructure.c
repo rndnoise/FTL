@@ -368,19 +368,29 @@ void FTL_reset_per_client_domain_data(void)
 void FTL_reload_all_domainlists(void)
 {
 	// Flush messages stored in the long-term database
+	logg(" Flushing message table");
 	flush_message_table();
+	logg(" Flushed message table");
 
 	// (Re-)open gravity database connection
+	logg(" Reopening gravity database");
 	gravityDB_reopen();
+	logg(" Reopened gravity database");
 
 	// Reset number of blocked domains
+	logg(" Counting number of blocked domains");
 	counters->gravity = gravityDB_count(GRAVITY_TABLE);
+	logg(" Counted number of blocked domains: %d", counters->gravity);
 
 	// Read and compile possible regex filters
 	// only after having called gravityDB_open()
+	logg(" Reading regex from database");
 	read_regex_from_database();
+	logg(" Read regex from database");
 
 	// Reset FTL's internal DNS cache storing whether a specific domain
 	// has already been validated for a specific user
+	logg(" Flushing per-client-domain cache");
 	FTL_reset_per_client_domain_data();
+	logg(" Flushed per-client-domain cache");
 }
