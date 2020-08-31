@@ -70,13 +70,19 @@ bool create_message_table(void)
 bool flush_message_table(void)
 {
 	// Open database connection
+	logg("Opening database");
 	dbopen();
+	logg("Opened database");
 
 	// Flush message table
+	logg("Running DELETE");
 	SQL_bool("DELETE FROM message;");
+	logg("Ran DELETE");
 
 	// Close database connection
+	logg("Closing database");
 	dbclose();
+	logg("Closed database");
 
 	return true;
 }
