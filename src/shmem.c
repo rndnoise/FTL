@@ -211,6 +211,11 @@ static void remap_shm(void)
 	realloc_shm(&shm_strings, counters->strings_MAX, sizeof(char), false);
 	// strings are not exposed by a global pointer
 
+	// Total number of regex filters
+	const unsigned int num_regex_tot = counters->num_regex[REGEX_BLACKLIST] +
+	                                   counters->num_regex[REGEX_WHITELIST];
+	realloc_shm(&shm_per_client_regex, counters->clients, num_regex_tot * sizeof(bool), false);
+
 	// Update local counter to reflect that we absorbed this change
 	local_shm_counter = shmSettings->global_shm_counter;
 }
@@ -232,7 +237,7 @@ void _lock_shm(const char* func, const int line, const char * file) {
 	   local_shm_counter != shmSettings->global_shm_counter)
 	{
 		if(config.debug & DEBUG_SHMEM)
-			logg("Remapping shared memory for current process %u %u",
+			logg("Remapping shared memory for current process (local %u, global %u)",
 		             local_shm_counter, shmSettings->global_shm_counter);
 		remap_shm();
 	}
@@ -479,6 +484,7 @@ bool realloc_shm(SharedMemory *sharedMemory, const size_t size1, const size_t si
 {
 	// Absolute target size
 	const size_t size = size1 * size2;
+
 	// Check if we can skip this routine as nothing is to be done
 	// when an object is not to be resized and its size didn't
 	// change elsewhere
@@ -486,7 +492,7 @@ bool realloc_shm(SharedMemory *sharedMemory, const size_t size1, const size_t si
 		return true;
 
 	// Log that we are doing something here
-	logg("%s \"%s\" from %zu to (%zu * %zu) == %zu",
+	logg("%s \"%s\" from %zu to %zu * %zu == %zu",
 	     resize ? "Resizing" : "Remapping",
 	     sharedMemory->name, sharedMemory->size,
 	     size1, size2, size);
@@ -710,7 +716,7 @@ void add_per_client_regex(unsigned int clientID)
 
 	// Resize the shared memory object if necessary
 	if(size > shm_per_client_regex.size / sizeof(bool) &&
-	   realloc_shm(&shm_per_client_regex, counters->clients, num_regex_tot * sizeof(bool), true))
+	   realloc_shm(&shm_per_client_regex, counters->clients * num_regex_tot, sizeof(bool), true))
 	{
 		reset_per_client_regex(clientID);
 	}
