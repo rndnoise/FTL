@@ -178,19 +178,25 @@ static void free_regex(void)
 	}
 }
 
+// This function does three things:
+//   1. Allocate additional memory if required
+//   2. Reset all regex to false for this client
+//   3. Load regex enabled/disabled state
 void allocate_regex_client_enabled(clientsData *client, const int clientID)
 {
+	// Possibly add space for a new client
 	add_per_client_regex(clientID);
 
-	// Only initialize regex associations when dnsmasq is ready (otherwise, we're still in history reading mode)
+	// Initialize regex status (enabled/disabled) for this client
+	// We only do this when dnsmasq is ready (otherwise, we're still in history reading mode)
 	if(!startup)
 	{
 		gravityDB_get_regex_client_groups(client, counters->num_regex[REGEX_BLACKLIST],
-						regex_id[REGEX_BLACKLIST], REGEX_BLACKLIST,
-						"vw_regex_blacklist", clientID);
+		                                  regex_id[REGEX_BLACKLIST], REGEX_BLACKLIST,
+		                                  "vw_regex_blacklist", clientID);
 		gravityDB_get_regex_client_groups(client, counters->num_regex[REGEX_WHITELIST],
-						regex_id[REGEX_WHITELIST], REGEX_WHITELIST,
-						"vw_regex_whitelist", clientID);
+		                                  regex_id[REGEX_WHITELIST], REGEX_WHITELIST,
+		                                  "vw_regex_whitelist", clientID);
 	}
 }
 
@@ -281,7 +287,7 @@ void read_regex_from_database(void)
 	// Read and compile regex whitelist
 	read_regex_table(REGEX_WHITELIST);
 
-
+	// Loop over all clients and ensure we have enough space
 	for(int clientID = 0; clientID < counters->clients; clientID++)
 	{
 		// Get client pointer
